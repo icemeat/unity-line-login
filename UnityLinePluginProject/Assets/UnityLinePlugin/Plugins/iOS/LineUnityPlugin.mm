@@ -19,7 +19,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
     gameObjectName = [NSString stringWithUTF8String:gameObjectName_];
     channelId = [NSString stringWithUTF8String:channelId_];
     apiClient = [[LineSDKAPI alloc] initWithConfiguration:[LineSDKConfiguration defaultConfig]];
-
+    
     return self;
 }
 
@@ -40,7 +40,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
 - (void)loginWebView
 {
-    [[LineSDKLogin sharedInstance] startWebLoginWithSafariViewController:NO];
+    [[LineSDKLogin sharedInstance] startWebLogin];
     // Set the LINE Login Delegate
     [LineSDKLogin sharedInstance].delegate = self;
 }
@@ -53,29 +53,29 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
            error:(NSError *)error
 {
     if (error) {
-        UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [self parseJsonWithError:error]);
+        UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [[self parseJsonWithError:error] UTF8String]);
     } else {
-        UnitySendMessage([gameObjectName UTF8String], "OnMessageLoginSuccess", [self parseJsonWithCredential:credential profile:profile]);
+        UnitySendMessage([gameObjectName UTF8String], "OnMessageLoginSuccess", [[self parseJsonWithCredential:credential profile:profile] UTF8String]);
     }
 }
 
 - (void)logout
 {
     [apiClient logoutWithCompletion:^(BOOL success, NSError * _Nullable error)
-    {
-        if (!success) {
-            UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [self parseJsonWithError:error]);
-        }
-    }];
+     {
+         if (!success) {
+             UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [[self parseJsonWithError:error] UTF8String]);
+         }
+     }];
 }
 
 - (void)verifyToken
 {
     [apiClient verifyTokenWithCompletion:^(LineSDKVerifyResult * _Nullable result, NSError * _Nullable error) {
         if (error) {
-            UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [self parseJsonWithError:error]);
+            UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [[self parseJsonWithError:error] UTF8String]);
         } else {
-            UnitySendMessage([gameObjectName UTF8String], "OnMessageVerifyResultReceived", [self parseJsonWithVerifyResult:result]);
+            UnitySendMessage([gameObjectName UTF8String], "OnMessageVerifyResultReceived", [[self parseJsonWithVerifyResult:result] UTF8String]);
         }
     }];
 }
@@ -83,37 +83,37 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 - (void)getCurrentAccessToken
 {
     LineSDKAccessToken *accessToken = [apiClient currentAccessToken];
-    UnitySendMessage([gameObjectName UTF8String], "OnMessageAccessTokenReceived", [self parseJsonWithAccessToken:accessToken]);
+    UnitySendMessage([gameObjectName UTF8String], "OnMessageAccessTokenReceived", [[self parseJsonWithAccessToken:accessToken] UTF8String]);
 }
 
 - (void)refreshToken
 {
     [apiClient refreshTokenWithCompletion:^(LineSDKAccessToken *_Nullable accessToken, NSError *_Nullable error)
-    {
-        if (error) {
-            UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [self parseJsonWithError:error]);
-        } else {
-            UnitySendMessage([gameObjectName UTF8String], "OnMessageAccessTokenReceived", [self parseJsonWithAccessToken:accessToken]);
-        }
+     {
+         if (error) {
+             UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [[self parseJsonWithError:error] UTF8String]);
+         } else {
+             UnitySendMessage([gameObjectName UTF8String], "OnMessageAccessTokenReceived", [[self parseJsonWithAccessToken:accessToken] UTF8String]);
+         }
          
-    }];
+     }];
 }
 
 - (void)getProfile
 {
     [apiClient getProfileWithCompletion:^(LineSDKProfile * _Nullable profile, NSError * _Nullable error)
-    {
-        if(error) {
-            UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [self parseJsonWithError:error]);
-        } else {
-            UnitySendMessage([gameObjectName UTF8String], "OnMessageProfileReceived", [self parseJsonWithProfile:profile]);
-        }
+     {
+         if(error) {
+             UnitySendMessage([gameObjectName UTF8String], "OnMessageApiError", [[self parseJsonWithError:error] UTF8String]);
+         } else {
+             UnitySendMessage([gameObjectName UTF8String], "OnMessageProfileReceived", [[self parseJsonWithProfile:profile] UTF8String]);
+         }
          
-    }];
+     }];
 }
 
 - (NSString *)parseJsonWithCredential:(LineSDKCredential *)credential
-                             profile:(LineSDKProfile *)profile
+                              profile:(LineSDKProfile *)profile
 {
     return [NSString stringWithFormat:@"{\"%@\":%@,\"%@\":%@}",
             @"credential",
@@ -162,9 +162,9 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 {
     return [NSString stringWithFormat:@"{\"%@\":%@,\"%@\":%@}",
             @"accessToken",
-            [self parseJsonWithAccessToken:[credential accessToken]],
+            @"dummy1",
             @"permission",
-            [self parseJsonWithStringSet:[credential permissions]]
+            [self parseJsonWithStringSet:[result permissions]]
             ];
 }
 
@@ -200,8 +200,8 @@ extern "C" {
 
 void *_LineUnityPlugin_Init(const char *gameObjectName, const char *channelId)
 {
-	id instance = [[LineUnityPlugin alloc] initWithGameObjectName:gameObjectName channelId: channelId];
-	return (__bridge void *)instance;
+    id instance = [[LineUnityPlugin alloc] initWithGameObjectName:gameObjectName channelId: channelId];
+    return (__bridge_retained void *)instance;
 }
 
 void _LineUnityPlugin_Login(void *instance)
