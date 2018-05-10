@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 
 public class iOSLineLoginPostPrecess : MonoBehaviour {
 	const string INFO_PLIST_NAME = "Info.plist";
+    const string CHANNELID="xxxxxxxx"
 	static string GetInfoPlistPath(string buildPath){
 		return Path.Combine(buildPath, INFO_PLIST_NAME);
 	}
@@ -35,7 +36,7 @@ public class iOSLineLoginPostPrecess : MonoBehaviour {
 		if(plist.root.values.ContainsKey("LSApplicationQueriesSchemes")){
 			plist.root.values.Remove ("LSApplicationQueriesSchemes");
 		}
-        plist.root.CreateDict("LineSDKConfig").SetString("ChannelID","1578004721");
+        plist.root.CreateDict("LineSDKConfig").SetString("ChannelID",CHANNELID);
         
         PlistElementArray CFBundleURLTypes = plist.root.CreateArray("CFBundleURLTypes");
         PlistElementDict CFBundleURLTypesDict = CFBundleURLTypes.AddDict();
