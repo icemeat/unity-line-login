@@ -1,7 +1,5 @@
-﻿namespace Com.Suriyun.LinePlugin
-{
-    public interface ILinePluginHandler
-    {
+﻿namespace Com.Suriyun.LinePlugin {
+    public interface ILinePluginHandler {
         void Init(string gameObjectName, string channelId);
         void Login();
         void LoginWebView();
@@ -10,5 +8,6 @@
         void GetCurrentAccessToken();
         void RefreshToken();
         void GetProfile();
+        void Dispose();
     }
 }

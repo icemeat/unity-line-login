@@ -1,4 +1,4 @@
-#import "AppDelegateListener.h"
+﻿#import "AppDelegateListener.h"
 #import <LineSDK/LineSDK.h>
 
 @interface AppDelegateListenerTest : NSObject <AppDelegateListener>
@@ -18,12 +18,12 @@ static AppDelegateListenerTest *_instance = nil;
     self = [super init];
     if(!self)
         return nil;
-    
+
     _instance = self;
-    
+
     // register to unity
     UnityRegisterAppDelegateListener(self);
-    
+
     return self;
 }
 

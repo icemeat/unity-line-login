@@ -1,55 +1,57 @@
-﻿using UnityEngine;
-using UnityEditor;
-using UnityEditor.Callbacks;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor.iOS.Xcode.Custom;
 using System.Runtime.InteropServices;
+using UnityEditor;
+using UnityEditor.Callbacks;
+using UnityEditor.iOS.Xcode.Custom;
+using UnityEngine;
 
 public class iOSLineLoginPostPrecess : MonoBehaviour {
-	const string INFO_PLIST_NAME = "Info.plist";
-    const string CHANNELID="xxxxxxxx"
-	static string GetInfoPlistPath(string buildPath){
-		return Path.Combine(buildPath, INFO_PLIST_NAME);
-	}
-	static PlistDocument GetInfoPlist(string buildPath){
-		string plistPath = GetInfoPlistPath(buildPath);
-		PlistDocument plist = new PlistDocument();
-		plist.ReadFromFile(plistPath);
+    [PostProcessBuild]
+    private static void OnPostprocessBuild(BuildTarget buildTarget, string buildPath) {
 
-		return plist;
-	}
-	[PostProcessBuild]
-	private static void OnPostprocessBuild(BuildTarget buildTarget, string buildPath){
+        if (buildTarget != BuildTarget.iOS) {
+            return;
+        }
+        LineLoginSetting setting = Resources.Load<LineLoginSetting>("LineLoginSetting");
+        if (setting == null || setting.IsValid() == false) {
+            Debug.LogErrorFormat("no LineLoginSetting Asset In Resources or Invalid");
+            return;
+        }
+        PlistDocument plist = setting.GetInfoPlist(buildPath);
+        string pbxProjPath = PBXProject.GetPBXProjectPath(buildPath);
+        PBXProject pbxProject = new PBXProject();
+        pbxProject.ReadFromString(File.ReadAllText(pbxProjPath));
 
-		if (buildTarget != BuildTarget.iOS){
-			return;
-		}
-		PlistDocument plist = GetInfoPlist(buildPath);
-		if(plist.root.values.ContainsKey("LineSDKConfig")){
-			plist.root.values.Remove ("LineSDKConfig");
-		}
-		if(plist.root.values.ContainsKey("CFBundleURLTypes")){
-			plist.root.values.Remove ("CFBundleURLTypes");
-		}
-		if(plist.root.values.ContainsKey("LSApplicationQueriesSchemes")){
-			plist.root.values.Remove ("LSApplicationQueriesSchemes");
-		}
-        plist.root.CreateDict("LineSDKConfig").SetString("ChannelID",CHANNELID);
-        
+        string targetGuid = pbxProject.TargetGuidByName(PBXProject.GetUnityTargetName());
+        pbxProject.UpdateBuildProperty(targetGuid, "OTHER_LDFLAGS", new string[] { "-ObjC" }, null);
+
+        File.WriteAllText(pbxProjPath, pbxProject.WriteToString());
+
+        if (plist.root.values.ContainsKey("LineSDKConfig")) {
+            plist.root.values.Remove("LineSDKConfig");
+        }
+        if (plist.root.values.ContainsKey("CFBundleURLTypes")) {
+            plist.root.values.Remove("CFBundleURLTypes");
+        }
+        if (plist.root.values.ContainsKey("LSApplicationQueriesSchemes")) {
+            plist.root.values.Remove("LSApplicationQueriesSchemes");
+        }
+        plist.root.CreateDict("LineSDKConfig").SetString("ChannelID", setting.CHANNEL_ID);
+
         PlistElementArray CFBundleURLTypes = plist.root.CreateArray("CFBundleURLTypes");
         PlistElementDict CFBundleURLTypesDict = CFBundleURLTypes.AddDict();
-        CFBundleURLTypesDict.SetString("CFBundleTypeRole","Editor");
-        CFBundleURLTypesDict.SetString("CFBundleTypeName","linelogin");
+        CFBundleURLTypesDict.SetString("CFBundleTypeRole", "Editor");
+        CFBundleURLTypesDict.SetString("CFBundleTypeName", "linelogin");
         //$(PRODUCT_BUNDLE_IDENTIFIER) dosen't works for CFBundleTypeSchemes?
         //CFBundleURLTypesDict.CreateArray("CFBundleURLSchemes").AddString("line3rdp.$(PRODUCT_BUNDLE_IDENTIFIER)");
-        CFBundleURLTypesDict.CreateArray("CFBundleURLSchemes").AddString("line3rdp."+Application.identifier);
+        CFBundleURLTypesDict.CreateArray("CFBundleURLSchemes").AddString("line3rdp." + Application.identifier);
         PlistElementArray arr = plist.root.CreateArray("LSApplicationQueriesSchemes");
         arr.AddString("lineauth");
-        arr.AddString("line3rdp."+Application.identifier);
-		plist.WriteToFile(GetInfoPlistPath(buildPath));
-	}
-    
+        arr.AddString("line3rdp." + Application.identifier);
+        plist.WriteToFile(setting.GetInfoPlistPath(buildPath));
+        Debug.Log("iOS Line Login Post Process done. with ChannelID:" + setting.CHANNEL_ID);
+    }
 
 }

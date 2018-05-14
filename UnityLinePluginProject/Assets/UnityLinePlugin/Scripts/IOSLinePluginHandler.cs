@@ -2,58 +2,53 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace Com.Suriyun.LinePlugin
-{
-    public class IOSLinePluginHandler : ILinePluginHandler
-    {
+namespace Com.Suriyun.LinePlugin {
+    public class IOSLinePluginHandler : ILinePluginHandler {
         private IntPtr instance;
 
-        public void Init(string gameObjectName, string channelId)
-        {
+        public void Init(string gameObjectName, string channelId) {
             instance = _LineUnityPlugin_Init(gameObjectName, channelId);
-            Debug.Log("Init() called");
+            Debug.Log("Init() called with instancePtr : " + instance);
         }
 
-        public void Login()
-        {
+        public void Login() {
             _LineUnityPlugin_Login(instance);
             Debug.Log("Login() called");
         }
 
-        public void LoginWebView()
-        {
+        public void LoginWebView() {
             _LineUnityPlugin_LoginWebView(instance);
             Debug.Log("LoginWebView() called");
         }
 
-        public void Logout()
-        {
+        public void Logout() {
             _LineUnityPlugin_Logout(instance);
             Debug.Log("Logout() called");
         }
 
-        public void VerifyToken()
-        {
+        public void VerifyToken() {
             _LineUnityPlugin_VerifyToken(instance);
             Debug.Log("VerifyToken() called");
         }
 
-        public void GetCurrentAccessToken()
-        {
+        public void GetCurrentAccessToken() {
             _LineUnityPlugin_GetCurrentAccessToken(instance);
             Debug.Log("GetCurrentAccessToken() called");
         }
 
-        public void RefreshToken()
-        {
+        public void RefreshToken() {
             _LineUnityPlugin_RefreshToken(instance);
             Debug.Log("RefreshToken() called");
         }
 
-        public void GetProfile()
-        {
+        public void GetProfile() {
             _LineUnityPlugin_GetProfile(instance);
             Debug.Log("GetProfile() called");
+        }
+        public void Dispose() {
+            _LineUnityPlugin_Destroy(instance);
+            Debug.Log("Dispose() called");
+            instance = IntPtr.Zero;
         }
 
         [DllImport("__Internal")]
@@ -72,5 +67,8 @@ namespace Com.Suriyun.LinePlugin
         private static extern int _LineUnityPlugin_RefreshToken(IntPtr instance);
         [DllImport("__Internal")]
         private static extern int _LineUnityPlugin_GetProfile(IntPtr instance);
+        [DllImport("__Internal")]
+        private static extern int _LineUnityPlugin_Destroy(IntPtr instance);
+
     }
 }

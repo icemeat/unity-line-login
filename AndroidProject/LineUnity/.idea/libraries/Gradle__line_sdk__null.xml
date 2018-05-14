@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: line-sdk::null">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/LineUnity/line-sdk/unspecified/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/LineUnity/line-sdk/unspecified/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
