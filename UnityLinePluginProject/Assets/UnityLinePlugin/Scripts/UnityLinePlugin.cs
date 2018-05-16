@@ -21,7 +21,6 @@ namespace Com.Suriyun.LinePlugin {
 #elif UNITY_IOS
             Handler = new IOSLinePluginHandler();
 #else
-            Handler = gameObject.AddComponent<WebViewLinePluginHandler>();
 #endif
 
             IsInit = false;
