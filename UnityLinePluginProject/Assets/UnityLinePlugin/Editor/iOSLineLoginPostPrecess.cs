@@ -17,7 +17,9 @@ namespace Com.Suriyun.LinePlugin {
             }
             if (LineLoginSetting.IsValid() == false) {
                 Debug.LogErrorFormat("no LineLoginSetting Asset In Resources or Invalid");
-                return;
+            }
+            if(string.IsNullOrEmpty(LineLoginSetting.ChannelID)){
+                Debug.LogAssertion("channelId is INVALID! please set channelID use [Tools/Line Login]");
             }
             string plistPath = LineLoginSetting.GetInfoPlistPath(buildPath);
             PlistDocument plist = new PlistDocument();

@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace Com.Suriyun.LinePlugin {
+#if UNITY_IOS
     public class IOSLinePluginHandler : ILinePluginHandler {
         private IntPtr instance;
 
@@ -71,4 +72,5 @@ namespace Com.Suriyun.LinePlugin {
         private static extern int _LineUnityPlugin_Destroy(IntPtr instance);
 
     }
+#endif
 }

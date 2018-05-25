@@ -20,7 +20,6 @@ namespace Com.Suriyun.LinePlugin {
             Handler = new AndroidLinePluginHandler();
 #elif UNITY_IOS
             Handler = new IOSLinePluginHandler();
-#else
 #endif
 
             IsInit = false;
@@ -32,7 +31,9 @@ namespace Com.Suriyun.LinePlugin {
 
             if (Handler != null) {
                 IsInit = true;
-                Debug.Log("GON:" + name);
+                if(string.IsNullOrEmpty(channelId)){
+                    Debug.LogAssertion("channelId is INVALID! please set channelID use [Tools/Line Login]");
+                }
                 Handler.Init(name, channelId);
             }
         }
